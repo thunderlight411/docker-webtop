@@ -1,0 +1,4 @@
+#!/usr/bin/pulseaudio -nF
+load-module module-native-protocol-tcp auth-anonymous=1
+load-module module-null-sink sink_name=webtop_sink
+set-default-sink webtop_sink
