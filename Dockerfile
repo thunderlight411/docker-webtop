@@ -36,10 +36,32 @@ RUN \
     /config/.cache \
     /tmp/*
 
+RUN apt-get update && apt-get install -y \
+    pulseaudio \
+    alsa-utils \
+    dbus-x11 \
+    libasound2 \
+    libasound2-dev \
+    --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# PulseAudio configuratie
+RUN mkdir -p /etc/pulse
+COPY default.pa /etc/pulse/default.pa
+
 # add local files
 COPY /root /
 
 # ports and volumes
-EXPOSE 3000
+EXPOSE 3000, 4713
 
 VOLUME /config
+
+# Start PulseAudio bij opstarten van de container
+CMD pulseaudio --start --exit-idle-time=-1 --disallow-module-loading=no \
+    --load="module-native-protocol-tcp auth-anonymous=1" \
+    --load="module-zeroconf-publish" \
+    --load="module-http-protocol-tcp" \
+    --daemonize && \
+    /init
